@@ -1,0 +1,446 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Parking Finder Backend API playground",
+    "version": "1.0.3",
+    "title": "Parking Finder Server"
+  },
+  "host": "s3-parking-finder.onrender.com",
+
+  "basePath": "/",
+
+  "schemes": ["https", "http"],
+
+  "paths": {
+    "/signup/user": {
+      "post": {
+        "summary": "Creates a new user",
+        "description": "This endpoint allows you to create a new user",
+        "tags": ["Authentication"],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "profile_image",
+            "type": "file",
+            "description": "User's profile image",
+            "required": true
+          },
+          {
+            "in": "formData",
+            "name": "email",
+            "type": "string",
+            "format": "email",
+            "description": "User's email address",
+            "required": true
+          },
+          {
+            "in": "formData",
+            "name": "password",
+            "type": "string",
+            "description": "User's password",
+            "required": true
+          },
+          {
+            "in": "formData",
+            "name": "userinfo",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "description": "User's username",
+                  "example": "johndoe"
+                },
+                "nick_name": {
+                  "type": "string",
+                  "description": "User's nickname",
+                  "example": "Johnny"
+                },
+                "cont_no": {
+                  "type": "string",
+                  "description": "User's contact number",
+                  "example": "01234567890"
+                },
+                "nid_image": {
+                  "type": "string",
+                  "description": "URL of user's National ID image",
+                  "example": "https://example.com/nid_image.jpg"
+                },
+                "licence_image": {
+                  "type": "string",
+                  "description": "URL of user's driving license image",
+                  "example": "https://example.com/licence_image.jpg"
+                },
+                "role": {
+                  "type": "string",
+                  "description": "User's role",
+                  "example": "admin"
+                },
+                "isVerified": {
+                  "type": "string",
+                  "description": "User's verification status",
+                  "example": "verified"
+                }
+              },
+              "required": ["username", "nick_name", "cont_no", "nid_image", "licence_image", "role", "isVerified"]
+            },
+            "description": "User's personal information",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Success message",
+                  "example": "User created successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+    ,
+    "/signin/user": {
+      "post": {
+        "summary": "Sign in a user",
+        "description": "This endpoint allows a user to sign in with their email and password",
+        "tags": ["Authentication"],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "User's email and password",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "description": "User's email address",
+                  "example": "johndoe@example.com"
+                },
+                "password": {
+                  "type": "string",
+                  "description": "User's password",
+                  "example": "mysecretpassword"
+                }
+              },
+              "required": ["email", "password"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User signed in successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string",
+                  "description": "Access token",
+                  "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid email or password"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/user/forgot-password": {
+      "post": {
+        "tags": ["Forgot Password"],
+        "summary": "Forgot Password",
+        "description": "Send an email to reset password",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Email of user who forgot password",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ForgotPasswordRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Response"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/Response"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/Response"
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "schema": {
+              "$ref": "#/definitions/Response"
+            }
+          }
+        }
+      }
+    },
+    "/user/verifyToken": {
+      "post": {
+        "tags": ["Forgot Password"],
+        "summary": "Verify Password Reset Token",
+        "description": "Verify that the provided password reset token is valid.",
+        "operationId": "verifyToken",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "JSON object containing the password reset token",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/VerifyTokenRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Password reset token is valid"
+          },
+          "400": {
+            "description": "Invalid request parameters or invalid password reset token"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/user/resetPassword": {
+      "post": {
+        "tags": ["Forgot Password"],
+        "summary": "Reset password",
+        "description": "Reset user password with reset token",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResetPasswordRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success response",
+            "schema": {
+              "$ref": "#/definitions/Response"
+            }
+          },
+          "400": {
+            "description": "Bad request response",
+            "schema": {
+              "$ref": "#/definitions/Response"
+            }
+          },
+          "404": {
+            "description": "Not found response",
+            "schema": {
+              "$ref": "#/definitions/Response"
+            }
+          },
+          "500": {
+            "description": "Internal server error response",
+            "schema": {
+              "$ref": "#/definitions/Response"
+            }
+          }
+        }
+      }
+    },
+    "/user/profile/update/{email}": {
+      "post": {
+        "summary": "Update user profile",
+        "tags": ["Manage Users"],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "description": "User's email",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully"
+          }
+        }
+      }
+    },
+    "/user/search/email/{email}": {
+      "get": {
+        "summary": "Search user by email",
+        "tags": ["Manage Users"],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "description": "Email to search",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+    },
+    "/user/list": {
+      "get": {
+        "summary": "Get all users",
+        "tags": ["Manage Users"],
+        "responses": {
+          "200": {
+            "description": "List of all users"
+          }
+        }
+      }
+    },
+    "/user/delete/all": {
+      "delete": {
+        "summary": "Delete all users",
+        "tags": ["Manage Users"],
+        "responses": {
+          "200": {
+            "description": "All users deleted"
+          }
+        }
+      }
+    },
+    "/user/search/contno/{cont_no}": {
+      "get": {
+        "summary": "Search user by contact number",
+        "tags": ["Manage Users"],
+        "parameters": [
+          {
+            "name": "cont_no",
+            "in": "path",
+            "description": "Contact number to search",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ForgotPasswordRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": "example@example.com"
+        }
+      }
+    },
+    "VerifyTokenRequest": {
+      "type": "object",
+      "properties": {
+        "resetToken": {
+          "type": "string"
+        }
+      },
+      "required": ["resetToken"]
+    },
+    "ResetPasswordRequest": {
+      "type": "object",
+      "properties": {
+        "resetToken": {
+          "type": "string",
+          "example": "123456"
+        },
+        "newPassword": {
+          "type": "string",
+          "example": "123456"
+        }
+      }
+    },
+    "Response": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "example": true
+        },
+        "message": {
+          "type": "string",
+          "example": "Success message"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "jwt": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Enter your JWT token in the format 'Bearer {token}'."
+    }
+  },
+  "security": [
+    {
+      "jwt": []
+    }
+  ]
+}
