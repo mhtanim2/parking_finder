@@ -3,6 +3,7 @@ const SECRET_KEY = process.env.SECRET_KEY;
 const jwt = require("jsonwebtoken");
 const userModel = require("../common/model");
 
+
 exports.signup = async (req, res) => {
   const {
     email,
